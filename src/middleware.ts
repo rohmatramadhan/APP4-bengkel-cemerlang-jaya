@@ -11,6 +11,12 @@ import type { Database } from "@/types/database";
  * The role is read from the profiles table, never from anything the browser sends.
  */
 export async function middleware(request: NextRequest) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    throw new Error(
+      "Supabase belum tersambung. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY di .env.local, lalu jalankan ulang npm run dev.",
+    );
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(

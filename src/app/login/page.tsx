@@ -8,8 +8,10 @@ export default async function HalamanLogin({
 }) {
   const { next, pesan } = await searchParams;
 
-  // Hanya alamat internal agar tidak bisa dipakai untuk open redirect / Internal paths only, to prevent open redirects
-  const tujuan = next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  // Diurai dengan URL karena peramban membaca "/\evil.com" sebagai "//evil.com"; hanya alamat internal yang lolos.
+  // Parsed with URL because browsers read "/\evil.com" as "//evil.com"; only same-origin paths pass.
+  const url = next?.startsWith("/") && URL.canParse(next, "http://lokal") ? new URL(next, "http://lokal") : null;
+  const tujuan = url?.origin === "http://lokal" ? url.pathname + url.search : "/dashboard";
 
   return (
     <main className="flex min-h-dvh items-center justify-center p-4">

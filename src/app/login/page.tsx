@@ -8,10 +8,13 @@ export default async function HalamanLogin({
 }) {
   const { next, pesan } = await searchParams;
 
-  // Diurai dengan URL karena peramban membaca "/\evil.com" sebagai "//evil.com"; hanya alamat internal yang lolos.
-  // Parsed with URL because browsers read "/\evil.com" as "//evil.com"; only same-origin paths pass.
+  // Diurai dengan URL karena peramban membaca "/\evil.com" sebagai "//evil.com". Hasil normalisasi juga dicek:
+  // "/.//evil.com" menjadi "//evil.com", yang dibaca peramban sebagai situs luar.
+  // Parsed with URL because browsers read "/\evil.com" as "//evil.com". The normalized result is checked too:
+  // "/.//evil.com" becomes "//evil.com", which browsers treat as another site.
   const url = next?.startsWith("/") && URL.canParse(next, "http://lokal") ? new URL(next, "http://lokal") : null;
-  const tujuan = url?.origin === "http://lokal" ? url.pathname + url.search : "/dashboard";
+  const tujuan =
+    url?.origin === "http://lokal" && !url.pathname.startsWith("//") ? url.pathname + url.search : "/dashboard";
 
   return (
     <main className="flex min-h-dvh items-center justify-center p-4">
